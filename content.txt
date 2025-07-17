@@ -1,0 +1,108 @@
+🖥️ 1. Hero Section
+Headline: "Don’t Rage Quit – We Revive the Tech!"
+
+Subhead: Fast, friendly, and sarcastically smart computer repair.
+
+CTA Buttons:
+
+“Book a Repair”
+
+“Get a Free Diagnosis”
+
+🧰 2. Services Section
+Title: “What We Fix (aka All the Stuff You Broke)”
+
+Virus & Malware Removal
+
+Slow Computer Tune-Ups
+
+Hardware Repair & Upgrades
+
+Laptop Screen/Keyboard Replacement
+
+Data Recovery (because yes, those baby pics matter)
+
+Custom Builds & Gaming Rig Optimization
+
+Home Networking Help
+
+Remote Assistance
+
+💥 3. Why Choose NerdHerd
+Title: “Why Us? Because We’re Awesome.”
+
+🧠 Techs Who Speak Human
+
+⚡ Fast Turnaround Times
+
+💸 No Surprise Fees
+
+🎮 Gamer-Friendly Fixes
+
+🛠️ We Actually Fix Stuff (not just "suggest upgrades")
+
+📸 4. Visual/Promo Banner
+Rotating images like the “Don’t Rage Quit” CPR poster
+
+Quick-fix stats or happy customer quotes
+
+Maybe a counter like: “1,048 computers saved from a hammer... and counting.”
+
+🧑‍💻 5. About Us
+Title: “Meet Your Local Nerds”
+
+Quick intro to your team
+
+Mission: Save tech. Educate users. Drink coffee. Repeat.
+
+Funny bios? Optional but golden.
+
+📞 6. Contact Section
+Title: “Scream for Help (or Just Call Us)”
+
+Phone Number
+
+Email
+
+Address
+
+Map Embed
+
+Contact Form (bonus points: snarky placeholder text like “Describe your tech’s tragic demise…”)
+
+📆 7. Booking Section
+Integrated calendar or request-a-quote form
+
+Dropdown for device type, issue, preferred time
+
+Optional: “Need it fixed yesterday?” checkbox
+
+🎯 8. Pricing/Promos
+Title: “Flat Rates, No Surprises”
+
+Show example prices or packages
+
+Mention your discounts:
+
+“Spilled Coffee Club – 10% Off”
+
+“First-Time Fix Special”
+
+“Student/Gamer Discount”
+
+🌟 9. Testimonials
+Title: “Real Reviews from Real People (Not Bots... We Checked)”
+Snappy quotes from happy customers
+
+Ratings/stars, profile pics if available
+
+📱 10. Footer
+Quick links: Home, Services, About, Book Now
+
+Social Media Icons
+
+Copyright & Terms
+
+Nerdy one-liner like:
+“Powered by caffeine and sheer tech wizardry.”
+

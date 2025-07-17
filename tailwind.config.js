@@ -1,7 +1,7 @@
-import {heroui} from "@heroui/theme"
+const {heroui} = require("@heroui/theme")
 
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     './src/layouts/**/*.{js,ts,jsx,tsx,mdx}',
@@ -10,7 +10,11 @@ export default {
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'bp1000': '1000px',
+      },
+    },
   },
   darkMode: "class",
   plugins: [heroui()],

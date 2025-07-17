@@ -1,144 +1,79 @@
-import { Button } from "@heroui/button";
-import { Kbd } from "@heroui/kbd";
-import { Link } from "@heroui/link";
-import { Input } from "@heroui/input";
-import {
-  Navbar as HeroUINavbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  NavbarMenuToggle,
-  NavbarMenu,
-  NavbarMenuItem,
-} from "@heroui/navbar";
-import { link as linkStyles } from "@heroui/theme";
-import clsx from "clsx";
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from 'react-router-dom';
 
-import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-} from "@/components/icons";
-import { Logo } from "@/components/icons";
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-export const Navbar = () => {
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      endContent={
-        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand className="gap-3 max-w-fit">
-          <Link
-            className="flex justify-start items-center gap-1"
-            color="foreground"
-            href="/"
-          >
-            <Logo />
-            <p className="font-bold text-inherit">ACME</p>
-          </Link>
-        </NavbarBrand>
-        <div className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
-              <Link
-                className={clsx(
-                  linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
-                )}
-                color="foreground"
-                href={item.href}
-              >
-                {item.label}
-              </Link>
-            </NavbarItem>
-          ))}
-        </div>
-      </NavbarContent>
+    <motion.nav
+      initial={{ y: -40, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={`fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 transition-all duration-300 ${
+        scrolled ? "py-2 shadow-lg" : "py-4 shadow-md"
+      } bg-white/60 backdrop-blur-md border-b border-white/30`}
+    >
+      {/* Left side - NerdHerd text (link to home) */}
+      <Link to="/" className="text-2xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400 rounded">
+        Nerd<span className="text-[#7c3aed]">Herd</span>
+      </Link>
 
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
+      {/* Centered Logo */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <img
+          src="/NerdHerdNewLogo.svg"
+          alt="NerdHerd Tech Repair"
+          className={`transition-all duration-300 ${scrolled ? "h-8 md:h-10" : "h-12 md:h-16"}`}
+          style={{
+            filter:
+              "brightness(0) saturate(100%) invert(48%) sepia(97%) saturate(749%) hue-rotate(222deg) brightness(101%) contrast(101%)",
+          }}
+          draggable={false}
+        />
+      </div>
+
+      {/* Hamburger for mobile */}
+      <button
+        className="ml-auto flex flex-col items-center justify-center p-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-400 bp1000:hidden"
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-label="Open navigation menu"
       >
-        <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal href={siteConfig.links.twitter} title="Twitter">
-            <TwitterIcon className="text-default-500" />
-          </Link>
-          <Link isExternal href={siteConfig.links.discord} title="Discord">
-            <DiscordIcon className="text-default-500" />
-          </Link>
-          <Link isExternal href={siteConfig.links.github} title="GitHub">
-            <GithubIcon className="text-default-500" />
-          </Link>
-          <ThemeSwitch />
-        </NavbarItem>
-        <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
-        <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
-            variant="flat"
-          >
-            Sponsor
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
+        <span className="block w-6 h-0.5 bg-slate-800" />
+        <span className="block w-6 h-0.5 bg-slate-800 my-1" />
+        <span className="block w-6 h-0.5 bg-slate-800" />
+      </button>
 
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
+      {/* Section Links - Far Right (desktop) */}
+      <div className="hidden bp1000:flex gap-6 text-lg font-medium ml-auto">
+        <Link to="/" className="text-slate-700 hover:text-[#7c3aed] transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 rounded">Home</Link>
+        <a href="#services" className="text-slate-700 hover:text-[#7c3aed] transition-colors">What We Fix</a>
+        <a href="#about" className="text-slate-700 hover:text-[#7c3aed] transition-colors">About</a>
+        <a href="#why-us" className="text-slate-700 hover:text-[#7c3aed] transition-colors">Why Us</a>
+        <a href="#contact" className="text-slate-700 hover:text-[#7c3aed] transition-colors">Contact</a>
+      </div>
 
-      <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href="#"
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
+      {/* Mobile menu overlay */}
+      {menuOpen && (
+        <div className="fixed left-0 right-0 top-[64px] bottom-0 bg-black bg-opacity-40 z-50 flex flex-col items-end bp1000:hidden" onClick={() => setMenuOpen(false)}>
+          <div className="bg-white rounded-bl-2xl shadow-lg mt-0 mr-4 p-6 flex flex-col gap-4 text-lg font-medium min-w-[200px]" onClick={e => e.stopPropagation()}>
+            <Link to="/" className="text-slate-700 hover:text-[#7c3aed] transition-colors" onClick={() => setMenuOpen(false)}>Home</Link>
+            <a href="#services" className="text-slate-700 hover:text-[#7c3aed] transition-colors" onClick={() => setMenuOpen(false)}>What We Fix</a>
+            <a href="#about" className="text-slate-700 hover:text-[#7c3aed] transition-colors" onClick={() => setMenuOpen(false)}>About</a>
+            <a href="#why-us" className="text-slate-700 hover:text-[#7c3aed] transition-colors" onClick={() => setMenuOpen(false)}>Why Us</a>
+            <a href="#contact" className="text-slate-700 hover:text-[#7c3aed] transition-colors" onClick={() => setMenuOpen(false)}>Contact</a>
+          </div>
         </div>
-      </NavbarMenu>
-    </HeroUINavbar>
+      )}
+    </motion.nav>
   );
-};
+}
