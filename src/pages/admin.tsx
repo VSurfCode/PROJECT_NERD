@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { db } from '@/config/firebase';
 import { collection, getDocs, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
 import Navbar from '@/components/navbar';

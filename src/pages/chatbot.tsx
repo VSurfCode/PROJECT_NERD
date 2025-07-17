@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import Navbar from '@/components/navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import * as THREE from 'three';
 import { db } from '@/config/firebase';
 import { collection, addDoc, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 
@@ -15,45 +14,6 @@ function getSystemPrompt(form: any) {
 }
 
 type Message = { from: string; text: string };
-
-// Replace SpinningCube with a vanilla three.js canvas component
-function SpinningCube({ color = '#a21caf' }: { color?: string }) {
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  React.useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(80, 80);
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(2, 2, 2);
-    camera.lookAt(0, 0, 0);
-    const light = new THREE.DirectionalLight(0xffffff, 0.8);
-    light.position.set(5, 5, 5);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-    let frameId: number;
-    function animate() {
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
-      renderer.render(scene, camera);
-      frameId = requestAnimationFrame(animate);
-    }
-    animate();
-    return () => {
-      cancelAnimationFrame(frameId);
-      renderer.dispose();
-      geometry.dispose();
-      material.dispose();
-    };
-  }, [color]);
-  return <canvas ref={canvasRef} width={80} height={80} style={{ display: 'block' }} />;
-}
-
 // Add a utility to normalize and check for the diagnosis phrase
 function containsDiagnosisPhrase(text: string) {
   // Remove punctuation, lowercase, and check for the phrase
@@ -92,10 +52,6 @@ function extractPossibleProblems(text: string) {
   return Array.from(new Set(problems)).filter(Boolean);
 }
 
-function isProblemObj(prob: any): prob is { title: string; desc?: string } {
-  return prob && typeof prob === 'object' && 'title' in prob;
-}
-
 // Moderation function using OpenAI's Moderation API
 async function moderateUserInput(input: string): Promise<{ flagged: boolean; categories?: any }> {
   const res = await fetch(OPENAI_MODERATION_URL, {
@@ -120,10 +76,9 @@ export default function ChatbotPage() {
   const chatRef = useRef<HTMLDivElement>(null);
   const [showDiagnosis, setShowDiagnosis] = useState(false);
   // Add state to track number of bot questions before diagnosis
-  const [botQuestionsAsked, setBotQuestionsAsked] = useState(0);
   const [diagnosisTriggered, setDiagnosisTriggered] = useState(false);
-  const [showMobileDiagnosis, setShowMobileDiagnosis] = useState(false);
-  const [maxQuestionsReached, setMaxQuestionsReached] = useState(false);
+  const [showMobileDiagnosis] = useState(false);
+  const [maxQuestionsReached] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -160,26 +115,6 @@ export default function ChatbotPage() {
       }
     }
   }, [messages]);
-
-  // Example possible problems (in real use, these would come from the AI)
-  const possibleProblems = [
-    {
-      title: 'Possible Problem: Power Supply',
-      desc: 'Your device might not be getting enough power. This can happen if the power cable is loose or the battery is low.',
-      chartData: [
-        { name: 'Power Issue', value: 70 },
-        { name: 'Other', value: 30 },
-      ],
-    },
-    {
-      title: 'Possible Problem: Software Glitch',
-      desc: 'Sometimes, a simple restart can fix weird issues. It could also be a software update problem.',
-      chartData: [
-        { name: 'Software', value: 60 },
-        { name: 'Other', value: 40 },
-      ],
-    },
-  ];
 
   async function fetchOpenAIResponse(userMessages: Message[], form: any) {
     const chatHistory = [
@@ -253,14 +188,6 @@ export default function ChatbotPage() {
           const reqRef = doc(db, 'repair_request', repairRequestId);
           await updateDoc(reqRef, { conversation: [...newMessages, { from: 'bot', text: reply }] });
         }
-        setBotQuestionsAsked(q => {
-          const next = q + 1;
-          if (next >= 10) {
-            setMaxQuestionsReached(true);
-            setMessages(msgs => [...msgs, { from: 'bot', text: 'I\'ve asked as many questions as I can. For further help, please reach out to a NerdHerd tech for a more in-depth diagnosis!' }]);
-          }
-          return next;
-        });
       }
     } catch (err) {
       setMessages(msgs => [...msgs, { from: 'bot', text: 'Sorry, there was a problem contacting the diagnosis bot.' }]);
@@ -329,8 +256,6 @@ export default function ChatbotPage() {
     }
   }
   const dynamicProblems: (string | { title: string; desc?: string })[] = latestDiagnosisMsg ? extractPossibleProblems(latestDiagnosisMsg.text) : [];
-
-  const showMobileTabs = diagnosisTriggered;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white flex flex-col">

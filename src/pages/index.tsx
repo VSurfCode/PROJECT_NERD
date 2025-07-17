@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "@/layouts/default";
-import { Card, CardFooter } from "@heroui/card";
-import { Image } from "@heroui/image";
-import { Button } from "@heroui/button";
 import { motion, useInView } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useNavigate } from 'react-router-dom';
@@ -14,10 +11,10 @@ export default function IndexPage() {
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   const [showBgLogo, setShowBgLogo] = useState(false);
   const navigate = useNavigate();
   const [pieProgress, setPieProgress] = useState(0);
-  const [count, setCount] = useState(0);
   // Booking modal state
   const [modalOpen, setModalOpen] = useState(false);
   // Scream for Help form state
@@ -81,28 +78,12 @@ export default function IndexPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const services = [
-    { title: "Virus & Malware Removal", icon: "🦠", description: "Kick those digital pests to the curb" },
-    { title: "Slow Computer Tune-Ups", icon: "🐢", description: "Speed up your PC like it's on Red Bull" },
-    { title: "Hardware Repair & Upgrades", icon: "🔧", description: "Fix it, upgrade it, make it awesome" },
-    { title: "Laptop Screen/Keyboard Replacement", icon: "💻", description: "New parts, new life" },
-    { title: "Custom Builds & Gaming Rig Optimization", icon: "🎮", description: "Build the ultimate gaming machine" },
-    { title: "Home Networking Help", icon: "📡", description: "Get your WiFi working properly" },
-    { title: "Remote Assistance", icon: "🖥️", description: "We can fix it from anywhere" },
-  ];
-
   const whyChooseUs = [
     { title: "Techs Who Speak Human", icon: "/virusandmalware-Photoroom.svg", alt: "Techs Who Speak Human", description: "No tech jargon, just solutions" },
     { title: "Fast Turnaround Times", icon: "/slowcomputertuneup-Photoroom.svg", alt: "Fast Turnaround Times", description: "Quick fixes, happy customers" },
     { title: "No Surprise Fees", icon: "/homenetworkhelp-Photoroom.svg", alt: "No Surprise Fees", description: "What you see is what you pay" },
     { title: "Gamer-Friendly Fixes", icon: "/gamingbuilds-Photoroom.svg", alt: "Gamer-Friendly Fixes", description: "We speak gamer language" },
     { title: "We Actually Fix Stuff", icon: "/hardwareupgrades-Photoroom.svg", alt: "We Actually Fix Stuff", description: "No unnecessary upgrades" },
-  ];
-
-  const testimonials = [
-    { name: "Sarah M.", rating: 5, text: "Fixed my laptop in under an hour. These guys are wizards!", avatar: "👩‍💻" },
-    { name: "Mike R.", rating: 5, text: "Finally, tech support that doesn't make me feel stupid!", avatar: "👨‍💻" },
-    { name: "Emma L.", rating: 5, text: "Recovered all my photos after I accidentally deleted them. Lifesavers!", avatar: "👩‍🎨" },
   ];
 
   // Floating Dots
@@ -433,33 +414,27 @@ export default function IndexPage() {
               const inView = useInView(ref, { amount: 0.1 });
               useEffect(() => {
                 if (inView) {
-                  let start = 0;
-                  let end = 1048;
                   let duration = 1200;
                   let startTime: number | null = null;
                   function animateCount(ts: number) {
                     if (startTime === null) startTime = ts;
                     const progress = Math.min((ts - startTime) / duration, 1);
-                    setCount(Math.floor(progress * (end - start) + start));
                     setPieProgress(progress);
                     if (progress < 1) requestAnimationFrame(animateCount);
                   }
                   requestAnimationFrame(animateCount);
                 } else {
-                  setCount(0);
                   setPieProgress(0);
                 }
               }, [inView]);
               // Calculate animated pie data
-              const total = repairStats.reduce((sum, s) => sum + s.value, 0);
               const repaired = repairStats[0].value;
               const animatedValue = Math.floor(pieProgress * repaired);
               const animatedStats = [
                 { ...repairStats[0], value: animatedValue },
                 ...repairStats.slice(1)
               ];
-              // Animate endAngle for the Pie
-              const animatedEndAngle = 90 - 360 * (animatedValue / total);
+  
               return (
                 <motion.div
                   ref={ref}
@@ -484,7 +459,7 @@ export default function IndexPage() {
                           paddingAngle={2}
                           isAnimationActive={false}
                         >
-                          {animatedStats.map((entry, idx) => (
+                          {animatedStats.map((entry) => (
                             <Cell key={entry.name} fill={entry.color} />
                           ))}
                         </Pie>
