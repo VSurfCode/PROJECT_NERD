@@ -104,8 +104,8 @@ export default function DiagnosisForm() {
     else {
       // Save user info to Firestore
       try {
-        const docRef = await addDoc(collection(db, 'users'), form);
-        localStorage.setItem('userId', docRef.id);
+        const docRef = await addDoc(collection(db, 'repair_request'), form);
+        localStorage.setItem('repairRequestId', docRef.id);
       } catch (err) {
         // Optionally handle error
       }
@@ -118,15 +118,15 @@ export default function DiagnosisForm() {
   const handleSubmit = async () => {
     try {
       console.log('Submitting form to Firestore:', form);
-      const docRef = await addDoc(collection(db, 'users'), form);
-      localStorage.setItem('userId', docRef.id);
+      const docRef = await addDoc(collection(db, 'repair_request'), form);
+      localStorage.setItem('repairRequestId', docRef.id);
       localStorage.setItem('diagnosisForm', JSON.stringify(form));
       navigate('/chatbot');
     } catch (err) {
       console.error('Firestore error:', err);
       // Try a minimal test write
       try {
-        await addDoc(collection(db, 'users'), { test: 'hello' });
+        await addDoc(collection(db, 'repair_request'), { test: 'hello' });
         alert('Minimal test write succeeded, but your form data failed. Check the form fields for invalid values.');
       } catch (testErr) {
         console.error('Minimal test write also failed:', testErr);

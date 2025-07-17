@@ -7,6 +7,8 @@ import { motion, useInView } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import BookingModal from '@/components/BookingModal';
+import { db } from '@/config/firebase';
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
 
 export default function IndexPage() {
   React.useEffect(() => {
@@ -18,6 +20,53 @@ export default function IndexPage() {
   const [count, setCount] = useState(0);
   // Booking modal state
   const [modalOpen, setModalOpen] = useState(false);
+  // Scream for Help form state
+  const initialSosState = {
+    name: '',
+    email: '',
+    phone: '',
+    deviceType: '',
+    brand: '',
+    model: '',
+    problem: '',
+    contactMethod: 'Either',
+    repairTime: '',
+    remote: false,
+  };
+  const [sosForm, setSosForm] = useState(initialSosState);
+  const [sosLoading, setSosLoading] = useState(false);
+  const [sosSuccess, setSosSuccess] = useState(false);
+  const [sosError, setSosError] = useState('');
+
+  const handleSosChange = (e: any) => {
+    const { name, value, type, checked } = e.target;
+    setSosForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleSosSubmit = async (e: any) => {
+    e.preventDefault();
+    setSosError('');
+    if (!sosForm.name.trim() || !sosForm.email.trim() || !sosForm.deviceType.trim() || !sosForm.problem.trim()) {
+      setSosError('Please fill in all required fields.');
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(sosForm.email)) {
+      setSosError('Please enter a valid email address.');
+      return;
+    }
+    setSosLoading(true);
+    try {
+      await addDoc(collection(db, 'repair_request'), {
+        ...sosForm,
+        createdAt: Timestamp.now(),
+      });
+      setSosSuccess(true);
+      setSosForm(initialSosState);
+    } catch (err) {
+      setSosError('There was a problem submitting your request. Please try again.');
+    }
+    setSosLoading(false);
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -513,13 +562,22 @@ export default function IndexPage() {
               <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-6 border border-slate-300">
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">Book Your Repair</h3>
                 <form className="space-y-4">
+                  {sosSuccess ? (
+                    <div className="text-center space-y-4">
+                      <div className="text-3xl">🎉</div>
+                      <div className="text-xl font-bold text-[#7c3aed]">Thank you!</div>
+                      <div>Your repair request has been received. A NerdHerd tech will contact you soon to confirm your repair.</div>
+                    </div>
+                  ) : (
+                  <>
+                  {sosError && <div className="text-red-500 text-sm mb-2">{sosError}</div>}
                   <div className="flex gap-2">
-                    <input name="name" type="text" placeholder="Name*" className="flex-1 p-3 rounded-xl border border-purple-200" required />
-                    <input name="email" type="email" placeholder="Email*" className="flex-1 p-3 rounded-xl border border-purple-200" required />
+                    <input name="name" type="text" placeholder="Name*" className="flex-1 p-3 rounded-xl border border-purple-200" required value={sosForm.name} onChange={handleSosChange} />
+                    <input name="email" type="email" placeholder="Email*" className="flex-1 p-3 rounded-xl border border-purple-200" required value={sosForm.email} onChange={handleSosChange} />
                   </div>
-                  <input name="phone" type="text" placeholder="Phone (optional)" className="w-full p-3 rounded-xl border border-purple-200" />
+                  <input name="phone" type="text" placeholder="Phone (optional)" className="w-full p-3 rounded-xl border border-purple-200" value={sosForm.phone} onChange={handleSosChange} />
                   <div className="grid grid-cols-3 gap-2">
-                    <select name="deviceType" className="p-3 rounded-xl border border-purple-200" required>
+                    <select name="deviceType" className="p-3 rounded-xl border border-purple-200" required value={sosForm.deviceType} onChange={handleSosChange}>
                       <option value="">Device Type*</option>
                       <option>Laptop</option>
                       <option>Desktop</option>
@@ -527,25 +585,27 @@ export default function IndexPage() {
                       <option>Tablet</option>
                       <option>Other</option>
                     </select>
-                    <input name="brand" type="text" placeholder="Brand" className="p-3 rounded-xl border border-purple-200" />
-                    <input name="model" type="text" placeholder="Model" className="p-3 rounded-xl border border-purple-200" />
+                    <input name="brand" type="text" placeholder="Brand" className="p-3 rounded-xl border border-purple-200" value={sosForm.brand} onChange={handleSosChange} />
+                    <input name="model" type="text" placeholder="Model" className="p-3 rounded-xl border border-purple-200" value={sosForm.model} onChange={handleSosChange} />
                   </div>
-                  <textarea name="problem" placeholder="Describe the problem*" rows={3} className="w-full p-3 rounded-xl border border-purple-200" required />
+                  <textarea name="problem" placeholder="Describe the problem*" rows={3} className="w-full p-3 rounded-xl border border-purple-200" required value={sosForm.problem} onChange={handleSosChange} />
                   <div className="flex gap-2">
-                    <select name="contactMethod" className="flex-1 p-3 rounded-xl border border-purple-200">
+                    <select name="contactMethod" className="flex-1 p-3 rounded-xl border border-purple-200" value={sosForm.contactMethod} onChange={handleSosChange}>
                       <option value="Either">Either</option>
                       <option value="Email">Email</option>
                       <option value="Phone">Phone</option>
                     </select>
-                    <input name="repairTime" type="text" placeholder="Preferred Time (optional)" className="flex-1 p-3 rounded-xl border border-purple-200" />
+                    <input name="repairTime" type="text" placeholder="Preferred Time (optional)" className="flex-1 p-3 rounded-xl border border-purple-200" value={sosForm.repairTime} onChange={handleSosChange} />
                   </div>
                   <label className="flex items-center gap-2">
-                    <input type="checkbox" name="remote" />
+                    <input type="checkbox" name="remote" checked={sosForm.remote} onChange={handleSosChange} />
                     I’d like remote assistance if possible
                   </label>
-                  <button className="w-full py-3 bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold rounded-xl text-lg">
-                    Send SOS Signal
+                  <button type="submit" className="w-full py-3 bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold rounded-xl text-lg" disabled={sosLoading} onClick={handleSosSubmit}>
+                    {sosLoading ? 'Sending...' : 'Send SOS Signal'}
                   </button>
+                  </>
+                  )}
                 </form>
               </div>
             </div>

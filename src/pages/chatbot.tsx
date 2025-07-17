@@ -222,6 +222,12 @@ export default function ChatbotPage() {
       const newMessages = [...messages, { from: 'user', text: input }];
       setMessages(newMessages);
       setInput('');
+      // Update repair_request with conversation after user message
+      const repairRequestId = localStorage.getItem('repairRequestId');
+      if (repairRequestId) {
+        const reqRef = doc(db, 'repair_request', repairRequestId);
+        await updateDoc(reqRef, { conversation: newMessages });
+      }
       const reply = await fetchOpenAIResponse(newMessages, form);
       const diagnosisRegex = /i have a few ideas of what'?s going on[.!:]?/i;
       // Allow a diagnosis at any time if the AI feels it has enough information
@@ -231,12 +237,22 @@ export default function ChatbotPage() {
           updatedReply = reply.replace(diagnosisRegex, (match: string) => `${match} Here is your Free Diagnosis:`);
         }
         setMessages(msgs => [...msgs, { from: 'bot', text: updatedReply }]);
+        // Update repair_request with conversation after bot message
+        if (repairRequestId) {
+          const reqRef = doc(db, 'repair_request', repairRequestId);
+          await updateDoc(reqRef, { conversation: [...newMessages, { from: 'bot', text: updatedReply }] });
+        }
         setTimeout(() => {
           setDiagnosisTriggered(true);
           setShowDiagnosis(true);
         }, 800);
       } else {
         setMessages(msgs => [...msgs, { from: 'bot', text: reply }]);
+        // Update repair_request with conversation after bot message
+        if (repairRequestId) {
+          const reqRef = doc(db, 'repair_request', repairRequestId);
+          await updateDoc(reqRef, { conversation: [...newMessages, { from: 'bot', text: reply }] });
+        }
         setBotQuestionsAsked(q => {
           const next = q + 1;
           if (next >= 10) {
